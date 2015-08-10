@@ -11,6 +11,7 @@ int handle_server_fd(int srv_fd, int epoll_fd);
 void handle_client(struct epoll_event* e, int epoll_fd);
 void clean_client(int fd, int epoll_fd);
 size_t rcv_msg(int fd, char** msg);
+//void handle_login(const char* msg,size_t len,int fd,user_list* lista)
 
 int main(int argc, const char *argv[])
 {
@@ -126,12 +127,15 @@ void handle_client(struct epoll_event* e, int epoll_fd)
 			switch (msg[0]) {
 			case '2':
 				//TODO: handle_login(...)
+				
 				break;
 			case '6':
 				//TODO: handle_userlist(...)
 				break;
 			default:
 				//TODO: error handling
+				//exit(1);
+
 				break;
 			}
 		}
@@ -141,17 +145,60 @@ void handle_client(struct epoll_event* e, int epoll_fd)
 		clean_client(e->data.fd, epoll_fd);
 	}
 }
+void handle_login(const char* msg,size_t len,int fd,user_list* ul)
+{
+	size_t size = strlen(msg);
+	char* temp = malloc(size * sizeof(char));
+	strncpy(temp,msg+2,size-2);
+	temp[size] = 0;
+	user *ptr = malloc(sizeof(user));
+	ptr -> fd = fd;
+	ptr -> nick = temp;
+
+	if(!(ul->add_user(ul,ptr)))
+		{
+		char* Ack = "1.0"
+		len=strlen(Ack)+1;
+		write(fd,&len,sizeof(size_t));
+		write(fd,Ack,len);
+		}
+	else
+		{
+		char* NAck = "1.1 Blad logowania";
+		len = strlen(NAck)+1;
+		write(fd,&len,sizeof(size_t));
+		write(fd,NAck,len)
+		}
+}
 
 void clean_client(int fd, int epoll_fd)
 {
 	//TODO remove from the list
+	del_user_by_fd(user_list* ul,int fd)
+	{
+	
+	}
+
 	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, 0);
 	close(fd);
 }
-
+ 
 size_t rcv_msg(int fd, char** msg)
 {
 	size_t res = 0;
-	//TODO
+	//TODO - Done
+	if(read(fd,&res,sizeof(size_t) != sizeof(size_t)
+		{
+		return 0;	
+		}
+	(*msg) = malloc((res+1) * sizeof(char));
+	(*msg)[res] = 0;
+	if(read(fd,(*msg),res)!=res)
+		{
+		free(*msg);
+		*msg=0;
+		return 0;
+		}		
+
 }
 
